@@ -41,40 +41,28 @@ fun ModeBox(text: String, icon: ImageVector, sel: Boolean, mod: Modifier, onClic
 
 @Composable
 fun DepositSheet(s: AppState, close: () -> Unit) {
-    var mode by remember { mutableStateOf("Agent / Kiosque") }
     KSheet("Dépôt d'argent", Icons.Filled.Download, close) {
-        Text("Choisir le mode de dépôt", color = LocalPal.current.text, fontWeight = FontWeight.SemiBold)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ModeBox("Agent / Kiosque", Icons.Filled.Storefront, mode == "Agent / Kiosque", Modifier.weight(1f)) { mode = "Agent / Kiosque" }
-            ModeBox("Carte Bancaire", Icons.Filled.CreditCard, mode == "Carte Bancaire", Modifier.weight(1f)) { mode = "Carte Bancaire" }
-            ModeBox("Mobile Money", Icons.Filled.PhoneAndroid, mode == "Mobile Money", Modifier.weight(1f)) { mode = "Mobile Money" }
-        }
-        if (mode == "Agent / Kiosque") InfoBox("Rendez-vous dans n'importe quel point agréé Kisan Kisan", "Indiquez votre numéro $PHONE ou présentez votre QR Code. Les dépôts sont 100% gratuits sans commission.")
-        AmountPinForm(s, "Valider le dépôt démo", false, "Dépôt effectué", "Montant du dépôt (GNF)", listOf(50_000L, 100_000L, 250_000L, 500_000L, 1_000_000L), 250_000L, close) { a -> s.deposit(mode, a) }
-        InfoBox("", "Crédit instantané sur votre compte Kisan Kisan.")
+        InfoBox("Le dépôt se fait chez un agent Kisan Kisan", "Rendez-vous chez un agent agréé avec votre numéro $PHONE ou présentez votre QR Code. L'agent dépose l'argent sur votre compte. Les dépôts sont 100% gratuits sans commission.", Icons.Filled.Storefront)
+        InfoBox("", "Vous ne pouvez pas créditer votre compte vous-même : seul un agent peut déposer de l'argent pour vous.")
+        KButton("J'ai compris", onClick = close)
     }
 }
 
 @Composable
 fun WithdrawSheet(s: AppState, close: () -> Unit) {
     val p = LocalPal.current
-    var mode by remember { mutableStateOf("Agent Kiosque") }
     var code by remember { mutableStateOf<String?>(null) }
     KSheet("Retirer de l'argent", Icons.Filled.Upload, close) {
         if (code != null) {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Votre code de retrait", color = p.sub); Text(code!!.chunked(3).joinToString(" "), color = Green, fontSize = 36.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
-                Text("Valable 15 minutes. Donnez ce code à l'agent.", color = p.sub, fontSize = 12.sp)
+                Text("Valable 15 minutes. Donnez ce code à l'agent pour recevoir vos espèces.", color = p.sub, fontSize = 12.sp)
             }
             KButton("Terminer", onClick = close)
         } else {
             BalanceRow(s)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ModeBox("Agent Kiosque", Icons.Filled.Storefront, mode == "Agent Kiosque", Modifier.weight(1f)) { mode = "Agent Kiosque" }
-                ModeBox("Scan Borne / Kiosque", Icons.Filled.QrCodeScanner, mode != "Agent Kiosque", Modifier.weight(1f)) { mode = "Borne" }
-            }
-            InfoBox("Retrait sécurisé par code temporaire", "Après confirmation de votre code PIN, un code à 6 chiffres valable 15 minutes vous sera attribué pour récupérer les espèces.", Icons.Filled.Schedule)
-            AmountPinForm(s, "Générer le retrait", true, "Code de retrait généré", "Montant à retirer (GNF)", onOk = { code = s.lastCode }) { a -> s.withdraw(mode, a) }
+            InfoBox("Retrait chez un agent", "Après confirmation de votre code PIN, un code à 6 chiffres valable 15 minutes est créé et le montant est mis de côté. L'agent vous remet les espèces quand vous lui donnez ce code.", Icons.Filled.Schedule)
+            AmountPinForm(s, "Générer le code de retrait", true, "Code de retrait généré", "Montant à retirer (GNF)", onOk = { code = s.lastCode }) { a -> s.withdraw("Agent Kiosque", a) }
         }
     }
 }
