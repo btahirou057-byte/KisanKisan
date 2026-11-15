@@ -33,12 +33,16 @@ import androidx.compose.ui.unit.sp
 
 /* ---------- accueil ---------- */
 
+class HomeTile(val l: String, val icon: ImageVector, val c: Color, val f: () -> Unit)
+
 @Composable
 fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
     val p = LocalPal.current
     val ctx = LocalContext.current
     val clip = LocalClipboardManager.current
     var tab by remember { mutableIntStateOf(0) }
+    val ag = remember { AgentState(ctx) }
+    var showAgent by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(s.t("Bienvenue") + ", ", color = p.sub, fontSize = 13.sp)
         Text("Mamadou", color = p.text, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
@@ -62,15 +66,27 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
             Text(if (s.hide) "••••••  GNF" else s.balance.gnf(), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
             Text("Plafond journalier : 15 000 000 GNF · Niveau 2", color = Color.White.copy(alpha = .7f), fontSize = 11.sp)
         }
-        Spacer(Modifier.height(14.dp))
-        Row(Modifier.fillMaxWidth()) {
-            listOf(Triple("Transfert", Icons.Filled.Send, Sheet.Transfer()), Triple("Scanner", Icons.Filled.QrCodeScanner, Sheet.Scan),
-                Triple("Dépôt", Icons.Filled.Download, Sheet.Deposit), Triple("Retrait", Icons.Filled.Upload, Sheet.Withdraw)).forEach { (l, i, sh) ->
-                Column(Modifier.weight(1f).clickable { open(sh) }, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.size(54.dp).clip(RoundedCornerShape(16.dp)).background(Color(0xFF0A1A4D).copy(alpha = .7f)), contentAlignment = Alignment.Center) {
-                        Icon(i, null, tint = Color(0xFF7FB0FF))
+    }
+    KCard {
+        val tiles = listOf(
+            HomeTile("Transfert", Icons.Filled.Send, Sky) { open(Sheet.Transfer()) },
+            HomeTile("Paiements", Icons.Filled.Storefront, Sky) { go(Page.Services) },
+            HomeTile("Dépôt", Icons.Filled.Download, Sky) { open(Sheet.Deposit) },
+            HomeTile("Retrait", Icons.Filled.Upload, Sky) { open(Sheet.Withdraw) },
+            HomeTile("Scanner", Icons.Filled.QrCodeScanner, Sky) { open(Sheet.Scan) },
+            HomeTile("Coffre", Icons.Filled.Savings, Sky) { open(Sheet.Vault) },
+            HomeTile("Historique", Icons.Filled.History, Sky) { go(Page.History) },
+            HomeTile("Agent", Icons.Filled.SupportAgent, Sky) { showAgent = true },
+        )
+        tiles.chunked(4).forEach { r ->
+            Row(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                r.forEach { t ->
+                    Column(Modifier.weight(1f).clickable { t.f() }, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(Modifier.size(56.dp).clip(CircleShape).background(Blue.copy(alpha = .20f)), contentAlignment = Alignment.Center) {
+                            Icon(t.icon, null, tint = t.c, modifier = Modifier.size(26.dp))
+                        }
+                        Text(s.t(t.l), color = p.text, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                     }
-                    Text(s.t(l), color = Color.White, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                 }
             }
         }
@@ -160,4 +176,5 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
         }
         s.txs.take(4).forEach { t -> TxRow(t) { open(Sheet.Receipt(t)) } }
     }
+    if (showAgent) AgentSheet(s, ag) { showAgent = false }
 }
