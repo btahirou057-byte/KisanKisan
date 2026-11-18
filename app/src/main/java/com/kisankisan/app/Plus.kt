@@ -45,7 +45,7 @@ fun PlusSheet(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit, onAgent: (
         PlusItem("Assistance", Icons.Filled.Headset) { close(); ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:8181"))) },
         PlusItem("Nouveau contact", Icons.Filled.PersonAdd) { close(); open(Sheet.AddContact) },
         PlusItem("Paramètres", Icons.Filled.Settings) { close(); open(Sheet.Settings) },
-        PlusItem("Tontine", Icons.Filled.Groups) { close(); s.msg = "Tontine : bientôt disponible" },
+        PlusItem("Tontine", Icons.Filled.Groups) { close(); open(Sheet.Tontine) },
     )
     KSheet("Plus de services", Icons.Filled.Apps, close) {
         items.chunked(4).forEach { r ->
