@@ -1,6 +1,7 @@
 package com.kisankisan.app
 
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -161,22 +162,17 @@ fun App(s: AppState) {
     val snack = remember { SnackbarHostState() }
     LaunchedEffect(s.msg) { s.msg?.let { snack.showSnackbar(it); s.msg = null } }
     val open = { x: Sheet -> sheet = x }
+    BackHandler(enabled = page != Page.Home) { page = Page.Home }
     Scaffold(
         containerColor = p.bg,
         snackbarHost = { SnackbarHost(snack) },
-        bottomBar = {
-            NavigationBar(containerColor = p.card) {
-                Page.entries.forEach { pg ->
-                    NavigationBarItem(
-                        selected = page == pg, onClick = { page = pg }, icon = { Icon(pg.icon, null) }, label = { Text(s.t(pg.label)) },
-                        colors = NavigationBarItemDefaults.colors(selectedIconColor = Sky, selectedTextColor = Sky, indicatorColor = Blue.copy(alpha = .2f), unselectedIconColor = p.sub, unselectedTextColor = p.sub),
-                    )
-                }
-            }
-        },
     ) { pad ->
         Column(Modifier.padding(pad).fillMaxSize()) {
             Header(s, open)
+            if (page != Page.Home) Row(Modifier.fillMaxWidth().clickable { page = Page.Home }.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.ArrowBack, null, tint = p.text); Spacer(Modifier.width(12.dp))
+                Text(s.t(page.label), color = p.text, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 when (page) {
                     Page.Home -> Home(s, open) { page = it }
