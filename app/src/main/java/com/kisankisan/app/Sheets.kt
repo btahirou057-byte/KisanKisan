@@ -50,7 +50,7 @@ sealed interface Sheet {
 fun SheetHost(sh: Sheet, s: AppState, open: (Sheet) -> Unit, close: () -> Unit) {
     when (sh) {
         Sheet.None -> {}
-        is Sheet.Transfer -> TransferSheet(s, sh.pre, close)
+        is Sheet.Transfer -> TransferSheet(s, sh.pre, open, close)
         Sheet.Deposit -> DepositSheet(s, close)
         Sheet.Withdraw -> WithdrawSheet(s, close)
         Sheet.Scan -> ScanSheet(s, open, close)
@@ -130,44 +130,77 @@ fun ColumnScope.AmountPinForm(
 /* ---------- transfert ---------- */
 
 @Composable
-fun TransferSheet(s: AppState, pre: Contact?, close: () -> Unit) {
+fun ActionRow(icon: ImageVector, text: String, onClick: () -> Unit) {
     val p = LocalPal.current
-    var phone by remember { mutableStateOf(pre?.phone ?: "") }
-    var name by remember { mutableStateOf(pre?.name ?: "") }
+    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(52.dp).clip(CircleShape).background(Blue.copy(alpha = .2f)), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = Sky)
+        }
+        Spacer(Modifier.width(16.dp))
+        Text(text, color = p.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+fun ContactRow(s: AppState, c: Contact, onClick: () -> Unit) {
+    val p = LocalPal.current
+    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Avatar(c, maxOf(0, s.contacts.indexOf(c)), 48); Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text(c.name, color = p.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(c.phone, color = p.sub, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
+        }
+        Icon(if (c.fav) Icons.Filled.Star else Icons.Filled.StarBorder, null, tint = Orange, modifier = Modifier.clickable { s.toggleFav(c) })
+    }
+}
+
+@Composable
+fun TransferSheet(s: AppState, pre: Contact?, open: (Sheet) -> Unit, close: () -> Unit) {
+    val p = LocalPal.current
+    var to by remember { mutableStateOf<Contact?>(pre) }
     var q by remember { mutableStateOf("") }
-    KSheet("Transfert d'argent", Icons.Filled.Send, close) {
-        BalanceRow(s)
-        if (s.contacts.any { it.fav }) KCard(border = Orange.copy(alpha = .5f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Star, null, tint = Orange, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp))
-                Text("Contacts Favoris", color = Orange, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                Text("Touchez ★ pour épingler", color = Orange, fontSize = 10.sp)
-            }
-            Spacer(Modifier.height(8.dp))
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                s.contacts.filter { it.fav }.forEach { c ->
-                    Column(Modifier.clip(RoundedCornerShape(12.dp)).background(p.card2).clickable { phone = c.phone; name = c.name }.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Avatar(c, s.contacts.indexOf(c), 44); Text(c.name.substringBefore(" "), color = p.text, fontSize = 11.sp)
-                    }
+    var newMode by remember { mutableStateOf(false) }
+    var nPhone by remember { mutableStateOf("") }
+    var nName by remember { mutableStateOf("") }
+    var err by remember { mutableStateOf<String?>(null) }
+    val dest = to
+    KSheet("Envoyer de l'Argent", Icons.Filled.Send, close) {
+        if (dest != null) {
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(p.card2).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Avatar(dest, maxOf(0, s.contacts.indexOf(dest)), 44); Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(dest.name, color = p.text, fontWeight = FontWeight.Bold)
+                    Text(dest.phone, color = p.sub, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
                 }
+                Text("Changer", color = Sky, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { to = null; newMode = false })
             }
-        }
-        KField(phone, { phone = it }, "Numéro du bénéficiaire (Guinée)", hint = "Ex: 624 88 99 00 ou +224 6...")
-        KField(name, { name = it }, "Nom du bénéficiaire (optionnel)", hint = "Ex: Fatoumata Diallo")
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Tous les contacts enregistrés", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, modifier = Modifier.weight(1f))
-            Icon(Icons.Filled.Groups, null, tint = Sky)
-        }
-        KField(q, { q = it }, "Filtrer les contacts...")
-        s.contacts.filter { q.isBlank() || it.name.contains(q, true) || it.phone.contains(q) }.forEach { c ->
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(p.card2).clickable { phone = c.phone; name = c.name }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Avatar(c, s.contacts.indexOf(c), 36); Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f)) { Text(c.name, color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 13.sp); Text(c.phone, color = p.sub, fontSize = 11.sp) }
-                Icon(if (c.fav) Icons.Filled.Star else Icons.Filled.StarBorder, null, tint = Orange, modifier = Modifier.clickable { s.toggleFav(c) })
+            BalanceRow(s)
+            AmountPinForm(s, "Envoyer l'argent", true, "Transfert effectué", onOk = close) { a -> s.transfer(dest.name.ifBlank { dest.phone }, a) }
+        } else if (newMode) {
+            Text("← Retour", color = Sky, fontWeight = FontWeight.SemiBold, modifier = Modifier.clickable { newMode = false; err = null })
+            KField(nPhone, { nPhone = it }, "Numéro du bénéficiaire (Guinée)", hint = "Ex: 624 88 99 00 ou +224 6...")
+            KField(nName, { nName = it }, "Nom du bénéficiaire (optionnel)")
+            err?.let { Text(it, color = Color(0xFFEF4444), fontSize = 13.sp) }
+            KButton("Continuer") {
+                if (nPhone.filter { it.isDigit() }.length < 8) err = "Entrez un numéro valide."
+                else { to = Contact(nName.trim().ifBlank { nPhone.trim() }, nPhone.trim(), false); err = null }
             }
-        }
-        AmountPinForm(s, "Envoyer l'argent", true, "Transfert effectué", onOk = close) { a ->
-            if (phone.isBlank() && name.isBlank()) "Choisissez un bénéficiaire." else s.transfer(name.ifBlank { phone }, a)
+        } else {
+            KField(q, { q = it }, "À", hint = "Nom ou numéro")
+            if (q.filter { it.isDigit() }.length >= 8) ActionRow(Icons.Filled.Send, "Envoyer à " + q.trim()) { to = Contact(q.trim(), q.trim(), false) }
+            ActionRow(Icons.Filled.Add, "Saisir un nouveau numéro") { newMode = true }
+            ActionRow(Icons.Filled.QrCodeScanner, "Scanner pour envoyer") { open(Sheet.Scan) }
+            val list = s.contacts.filter { q.isBlank() || it.name.contains(q, true) || it.phone.contains(q) }
+            val favs = list.filter { it.fav }
+            val others = list.filter { !it.fav }
+            if (favs.isNotEmpty()) {
+                Text("Favoris", color = p.text, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
+                favs.forEach { c -> ContactRow(s, c) { to = c } }
+            }
+            if (others.isNotEmpty()) {
+                Text("Contacts", color = p.text, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
+                others.forEach { c -> ContactRow(s, c) { to = c } }
+            }
         }
     }
 }
