@@ -39,6 +39,7 @@ sealed interface Sheet {
     data object Settings : Sheet
     data object Notifs : Sheet
     data object Vault : Sheet
+    data object Tontine : Sheet
     data object AddContact : Sheet
     data class Bill(val name: String) : Sheet
     data class Merchant(val name: String, val amount: Long = 0L) : Sheet
@@ -57,6 +58,7 @@ fun SheetHost(sh: Sheet, s: AppState, open: (Sheet) -> Unit, close: () -> Unit) 
         Sheet.Settings -> SettingsSheet(s, close)
         Sheet.Notifs -> NotifsSheet(s, close)
         Sheet.Vault -> VaultSheet(s, close)
+        Sheet.Tontine -> TontineSheet(s, close)
         Sheet.AddContact -> AddContactSheet(s, close)
         is Sheet.Bill -> BillSheet(s, sh.name, close)
         is Sheet.Merchant -> MerchantSheet(s, sh.name, sh.amount, close)
