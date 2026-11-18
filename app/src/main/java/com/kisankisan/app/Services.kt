@@ -71,14 +71,14 @@ fun Services(open: (Sheet) -> Unit) {
             Icon(Icons.Filled.ChevronRight, null, tint = Green)
         }
     }
-    KCard {
+    KCard(click = { open(Sheet.Tontine) }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconBubble(Icons.Filled.Groups, Purple, 44); Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Tontine Numérique Familiale", color = p.text, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f, false))
                     Spacer(Modifier.width(6.dp))
-                    Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Purple.copy(alpha = .3f)).padding(horizontal = 6.dp, vertical = 2.dp)) { Text("Bientôt", color = Purple, fontSize = 10.sp) }
+                    Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Purple.copy(alpha = .3f)).padding(horizontal = 6.dp, vertical = 2.dp)) { Text("Démo", color = Purple, fontSize = 10.sp) }
                 }
                 Text("Cotisations entre proches avec tirage automatique", color = p.sub, fontSize = 12.sp)
             }
