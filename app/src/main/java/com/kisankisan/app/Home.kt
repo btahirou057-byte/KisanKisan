@@ -43,6 +43,7 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
     var showAgent by remember { mutableStateOf(false) }
     var showCredit by remember { mutableStateOf(false) }
     var showPlus by remember { mutableStateOf(false) }
+    var showBills by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(s.t("Bienvenue") + ", ", color = p.sub, fontSize = 13.sp)
         Text("Mamadou", color = p.text, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
@@ -87,7 +88,7 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
             HomeTile("Coffre", Icons.Filled.Savings, Sky) { open(Sheet.Vault) },
             HomeTile("Dépôt", Icons.Filled.Download, Sky) { open(Sheet.Deposit) },
             HomeTile("Retrait", Icons.Filled.Upload, Sky) { open(Sheet.Withdraw) },
-            HomeTile("Historique", Icons.Filled.History, Sky) { go(Page.History) },
+            HomeTile("Factures", Icons.Filled.ReceiptLong, Sky) { showBills = true },
             HomeTile("Plus", Icons.Filled.Apps, p.sub) { showPlus = true },
         )
         tiles.chunked(4).forEach { r ->
@@ -100,6 +101,7 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
                         Text(s.t(t.l), color = p.text, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                     }
                 }
+                repeat(4 - r.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -122,4 +124,19 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
     if (showAgent) AgentSheet(s, ag) { showAgent = false }
     if (showCredit) CreditSheet(s) { showCredit = false }
     if (showPlus) PlusSheet(s, open, go, { showAgent = true }) { showPlus = false }
+    if (showBills) BillsPicker(open) { showBills = false }
+}
+
+@Composable
+fun BillsPicker(open: (Sheet) -> Unit, close: () -> Unit) {
+    val p = LocalPal.current
+    KSheet("Payer une facture", Icons.Filled.ReceiptLong, close) {
+        BILLS.forEach { b ->
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(p.card2).clickable { close(); open(Sheet.Bill(b.n)) }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconBubble(b.icon, b.c, 40); Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) { Text(b.n, color = p.text, fontWeight = FontWeight.Bold); Text(b.d, color = p.sub, fontSize = 12.sp) }
+                Icon(Icons.Filled.ChevronRight, null, tint = p.sub)
+            }
+        }
+    }
 }
