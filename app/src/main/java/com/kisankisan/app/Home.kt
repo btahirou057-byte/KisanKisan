@@ -108,9 +108,15 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
             Label(s.t("Dernières transactions").uppercase()); Spacer(Modifier.weight(1f))
             Text(s.t("Voir tout") + " ›", color = Sky, fontSize = 13.sp, modifier = Modifier.clickable { go(Page.History) })
         }
-        s.txs.take(6).forEachIndexed { i, t ->
+        s.txs.take(10).forEachIndexed { i, t ->
             if (i > 0) HorizontalDivider(color = p.border)
             TxRow(t) { open(Sheet.Receipt(t)) }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.Center) {
+            Row(Modifier.clip(RoundedCornerShape(24.dp)).background(Blue.copy(alpha = .2f)).clickable { go(Page.History) }.padding(horizontal = 22.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Search, null, tint = Sky, modifier = Modifier.size(20.dp)); Spacer(Modifier.width(8.dp))
+                Text("Rechercher", color = Sky, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            }
         }
     }
     if (showAgent) AgentSheet(s, ag) { showAgent = false }
