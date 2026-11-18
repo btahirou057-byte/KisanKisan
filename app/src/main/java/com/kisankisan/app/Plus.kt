@@ -40,7 +40,7 @@ fun PlusSheet(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit, onAgent: (
     val items = listOf(
         PlusItem("Factures", Icons.Filled.ReceiptLong) { close(); go(Page.Services) },
         PlusItem("Scanner", Icons.Filled.QrCodeScanner) { close(); open(Sheet.Scan) },
-        PlusItem("Mon QR", Icons.Filled.QrCode2) { close(); open(Sheet.MyQr) },
+        PlusItem("Profil", Icons.Filled.Person) { close(); go(Page.Profile) },
         PlusItem("Agent", Icons.Filled.SupportAgent) { close(); onAgent() },
         PlusItem("Assistance", Icons.Filled.Headset) { close(); ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:8181"))) },
         PlusItem("Nouveau contact", Icons.Filled.PersonAdd) { close(); open(Sheet.AddContact) },
