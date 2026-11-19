@@ -39,7 +39,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-val Blue = Color(0xFF1B4DDB)
+val Blue = Color(0xFF1636B4)
 val Sky = Color(0xFF4C8DFF)
 val Green = Color(0xFF22C55E)
 val Orange = Color(0xFFF59E0B)
@@ -51,8 +51,8 @@ const val USER = "Mamadou Tahirou Bah"
 class Pal(val bg: Color, val card: Color, val card2: Color, val border: Color, val text: Color, val sub: Color)
 
 fun pal(dark: Boolean) =
-    if (dark) Pal(Color(0xFF0A1020), Color(0xFF111A2E), Color(0xFF16223B), Color(0xFF1F2D4A), Color(0xFFE8EEFB), Color(0xFF8A99B8))
-    else Pal(Color(0xFFF3F6FC), Color.White, Color(0xFFEEF2FA), Color(0xFFDDE5F3), Color(0xFF0F172A), Color(0xFF64748B))
+    if (dark) Pal(Color(0xFF000E47), Color(0xFF0A1A5C), Color(0xFF122670), Color(0xFF21388A), Color(0xFFEAF0FF), Color(0xFF9AA9D6))
+    else Pal(Color(0xFFEFF2F6), Color.White, Color(0xFFEAEEF6), Color(0xFFD9DFEC), Color(0xFF00114E), Color(0xFF5C6890))
 
 val LocalPal = staticCompositionLocalOf { pal(true) }
 
