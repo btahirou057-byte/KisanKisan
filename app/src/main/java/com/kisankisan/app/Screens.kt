@@ -195,7 +195,7 @@ fun HeaderBtn(icon: ImageVector, onClick: () -> Unit) {
 
 @Composable
 fun Header(s: AppState, open: (Sheet) -> Unit) {
-    Row(Modifier.fillMaxWidth().background(Blue).padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().background(Brush.linearGradient(0f to Color(0xFFC8081B), 0.42f to Color(0xFF00114E), 0.72f to Color(0xFF00114E), 1f to Color(0xFF008A2E), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, 0f))).padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(Color.White), contentAlignment = Alignment.Center) {
             Text("KK", color = Blue, fontWeight = FontWeight.ExtraBold)
         }
