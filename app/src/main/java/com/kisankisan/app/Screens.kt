@@ -166,8 +166,9 @@ fun App(s: AppState) {
     Scaffold(
         containerColor = p.bg,
         snackbarHost = { SnackbarHost(snack) },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize()) {
+        Column(Modifier.padding(pad).fillMaxSize().navigationBarsPadding()) {
             Header(s, open)
             if (page != Page.Home) Row(Modifier.fillMaxWidth().clickable { page = Page.Home }.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.ArrowBack, null, tint = p.text); Spacer(Modifier.width(12.dp))
@@ -195,7 +196,7 @@ fun HeaderBtn(icon: ImageVector, onClick: () -> Unit) {
 
 @Composable
 fun Header(s: AppState, open: (Sheet) -> Unit) {
-    Row(Modifier.fillMaxWidth().background(Brush.linearGradient(0f to Color(0xFFC8081B), 0.42f to Color(0xFF00114E), 0.72f to Color(0xFF00114E), 1f to Color(0xFF008A2E), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, 0f))).padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().background(Brush.linearGradient(0f to Color(0xFFC8081B), 0.42f to Color(0xFF00114E), 0.72f to Color(0xFF00114E), 1f to Color(0xFF008A2E), start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, 0f))).statusBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(Color.White), contentAlignment = Alignment.Center) {
             Text("KK", color = Blue, fontWeight = FontWeight.ExtraBold)
         }
