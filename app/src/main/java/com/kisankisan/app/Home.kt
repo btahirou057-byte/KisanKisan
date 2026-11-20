@@ -54,7 +54,7 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
             Text("Coffre : ${s.vault.gnf()}", color = p.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         }
     }
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Brush.verticalGradient(listOf(Blue, Color(0xFF0E2E8C))))
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Brush.verticalGradient(listOf(Color(0xFF0C2388), Color(0xFF02104F))))
         .padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = .10f)).border(1.dp, Color.White.copy(alpha = .25f), RoundedCornerShape(16.dp)).padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
