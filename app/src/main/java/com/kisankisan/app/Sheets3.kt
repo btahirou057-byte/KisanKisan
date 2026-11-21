@@ -47,7 +47,7 @@ fun MyQrSheet(s: AppState, close: () -> Unit) {
     val payload = qrPayload(amt.toLongOrNull() ?: 0L)
     KSheet("Mon QR Code Kisan Kisan", Icons.Filled.QrCode2, close) {
         Text("Recevez des francs guinéens en 1 seconde", color = p.sub, fontSize = 12.sp)
-        Box(Modifier.align(Alignment.CenterHorizontally).size(76.dp).clip(CircleShape).background(Blue.copy(alpha = .25f)), contentAlignment = Alignment.Center) { Text("MT", color = Sky, fontWeight = FontWeight.Bold, fontSize = 22.sp) }
+        Box(Modifier.align(Alignment.CenterHorizontally).size(76.dp).clip(CircleShape).background(Blue.copy(alpha = .25f)), contentAlignment = Alignment.Center) { Text(userInitials(), color = Sky, fontWeight = FontWeight.Bold, fontSize = 22.sp) }
         Text(USER, color = p.text, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
         Text(PHONE, color = p.sub, fontFamily = FontFamily.Monospace, modifier = Modifier.align(Alignment.CenterHorizontally))
         Box(Modifier.align(Alignment.CenterHorizontally).size(260.dp).clip(RoundedCornerShape(20.dp)).background(Color.White).padding(12.dp), contentAlignment = Alignment.Center) {
