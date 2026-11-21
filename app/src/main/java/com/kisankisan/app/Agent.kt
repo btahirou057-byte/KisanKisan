@@ -77,7 +77,7 @@ fun AgentSheet(s: AppState, ag: AgentState, close: () -> Unit) {
     fun doOp(a: Long): String? {
         if (cPhone.isBlank()) return "Scannez d'abord le QR du client."
         if (a <= 0L) return "Entrez un montant valide."
-        val mine = cPhone.filter { it.isDigit() }.endsWith("624889900")
+        val mine = cPhone.filter { it.isDigit() }.endsWith(PHONE.filter { it.isDigit() }.takeLast(9))
         when (mode) {
             0 -> {
                 if (a > ag.floatBal) return "Float agent insuffisant."
