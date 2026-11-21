@@ -55,7 +55,7 @@ enum class Page(val label: String, val icon: ImageVector) {
 }
 
 fun qrPayload(amount: Long = 0L) =
-    "kisankisan://pay?phone=" + Uri.encode("+224624889900") + "&name=" + Uri.encode(USER) + (if (amount > 0) "&amount=$amount" else "")
+    "kisankisan://pay?phone=" + Uri.encode("+" + PHONE.filter { it.isDigit() }) + "&name=" + Uri.encode(USER) + (if (amount > 0) "&amount=$amount" else "")
 
 fun share(ctx: android.content.Context, text: String) {
     val i = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, text) }
