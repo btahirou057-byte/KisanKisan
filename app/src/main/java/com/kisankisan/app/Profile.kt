@@ -49,7 +49,7 @@ fun Profile(s: AppState, open: (Sheet) -> Unit) {
     val ctx = LocalContext.current
     KCard {
         Box(Modifier.align(Alignment.CenterHorizontally).size(78.dp).clip(CircleShape).background(Blue.copy(alpha = .25f)), contentAlignment = Alignment.Center) {
-            Text("MT", color = Sky, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+            Text(userInitials(), color = Sky, fontWeight = FontWeight.Bold, fontSize = 24.sp)
         }
         Text(USER, color = p.text, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp))
         Text(PHONE, color = p.sub, fontFamily = FontFamily.Monospace, modifier = Modifier.align(Alignment.CenterHorizontally))
