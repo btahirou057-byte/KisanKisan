@@ -46,7 +46,7 @@ fun Home(s: AppState, open: (Sheet) -> Unit, go: (Page) -> Unit) {
     var showBills by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(s.t("Bienvenue") + ", ", color = p.sub, fontSize = 13.sp)
-        Text("Mamadou", color = p.text, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        Text(USER.substringBefore(" "), color = p.text, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
         Row(Modifier.clip(RoundedCornerShape(20.dp)).background(Blue.copy(alpha = .18f)).border(1.dp, Blue.copy(alpha = .5f), RoundedCornerShape(20.dp))
             .clickable { open(Sheet.Vault) }.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Filled.Savings, null, tint = Orange, modifier = Modifier.size(16.dp))
