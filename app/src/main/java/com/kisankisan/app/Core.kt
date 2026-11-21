@@ -47,8 +47,10 @@ val Green = Color(0xFF22C55E)
 val Orange = Color(0xFFF59E0B)
 val Purple = Color(0xFFA855F7)
 const val LIMIT = 15_000_000L
-const val PHONE = "+224 624 88 99 00"
-const val USER = "Mamadou Tahirou Bah"
+var PHONE = "+224 624 88 99 00"
+var USER = "Mamadou Tahirou Bah"
+
+fun userInitials() = USER.trim().split(" ").filter { it.isNotEmpty() }.take(2).joinToString("") { it.take(1).uppercase() }
 
 class Pal(val bg: Color, val card: Color, val card2: Color, val border: Color, val text: Color, val sub: Color)
 
@@ -130,17 +132,29 @@ class AppState(private val ctx: Context) {
     var unread by mutableIntStateOf(1)
     var msg by mutableStateOf<String?>(null)
     var lastCode by mutableStateOf("")
+    var registered by mutableStateOf(false)
+    var userName by mutableStateOf("")
+    var userPhone by mutableStateOf("")
     val txs = mutableStateListOf<Tx>()
     val contacts = mutableStateListOf<Contact>()
     val notifs = mutableStateListOf<String>()
 
-    init { if (!load()) reset() }
+    init {
+        if (!load()) reset()
+        if (registered && userName.isNotBlank()) { USER = userName; PHONE = userPhone }
+    }
+
+    fun register(name: String, phone: String, newPin: String) {
+        userName = name; userPhone = phone; pin = newPin; registered = true
+        USER = name; PHONE = phone
+        save()
+    }
 
     fun t(fr: String) = if (lang == "Anglais") (EN[fr] ?: fr) else fr
 
     fun reset() {
         dark = true; hide = false; balance = 2_255_000L; vault = 950_000L; daily = 745_000L
-        threshold = 200_000L; alertOn = true; bio = false; pin = "1234"; unread = 1; lang = "Français"
+        threshold = 200_000L; alertOn = true; bio = false; pin = if (registered) pin else "1234"; unread = 1; lang = "Français"
         txs.clear()
         txs.addAll(listOf(
             Tx(14, "Agent Kiosque Agréé", "Retrait d'argent", "12 nov., 12:50", -100_000L, "withdraw"),
@@ -173,7 +187,7 @@ class AppState(private val ctx: Context) {
     fun save() {
         val o = JSONObject()
         o.put("dark", dark).put("hide", hide).put("bal", balance).put("vault", vault).put("daily", daily)
-            .put("thr", threshold).put("alert", alertOn).put("bio", bio).put("lang", lang).put("pin", pin).put("unread", unread)
+            .put("thr", threshold).put("alert", alertOn).put("bio", bio).put("lang", lang).put("pin", pin).put("unread", unread).put("reg", registered).put("un", userName).put("up", userPhone)
         val ta = JSONArray()
         txs.forEach { ta.put(JSONObject().put("i", it.id).put("t", it.title).put("s", it.sub).put("w", it.time).put("a", it.amount).put("y", it.type)) }
         o.put("txs", ta)
@@ -193,6 +207,7 @@ class AppState(private val ctx: Context) {
             dark = o.getBoolean("dark"); hide = o.getBoolean("hide"); balance = o.getLong("bal"); vault = o.getLong("vault")
             daily = o.getLong("daily"); threshold = o.getLong("thr"); alertOn = o.getBoolean("alert"); bio = o.getBoolean("bio")
             lang = o.getString("lang"); pin = o.getString("pin"); unread = o.getInt("unread")
+            registered = o.optBoolean("reg", false); userName = o.optString("un", ""); userPhone = o.optString("up", "")
             txs.clear()
             val ta = o.getJSONArray("txs")
             for (i in 0 until ta.length()) {
@@ -285,7 +300,9 @@ class MainActivity : FragmentActivity() {
             val p = pal(s.dark)
             MaterialTheme(colorScheme = if (s.dark) darkColorScheme(primary = Blue) else lightColorScheme(primary = Blue)) {
                 CompositionLocalProvider(LocalPal provides p) {
-                    if (locked) {
+                    if (!s.registered) {
+                        Onboarding(s)
+                    } else if (locked) {
                         LaunchedEffect(Unit) { askBio(this@MainActivity) { locked = false } }
                         Column(Modifier.fillMaxSize().background(p.bg).padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Filled.Lock, null, tint = Blue, modifier = Modifier.size(64.dp))
